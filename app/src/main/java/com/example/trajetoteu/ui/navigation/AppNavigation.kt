@@ -2,16 +2,15 @@ package com.example.trajetoteu.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CompassCalibration
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
@@ -19,7 +18,6 @@ import com.example.trajetoteu.model.TopicoEstudo
 import com.example.trajetoteu.model.TrilhaConhecimento
 import com.example.trajetoteu.ui.screens.*
 import com.example.trajetoteu.ui.theme.DeepNavy
-import com.example.trajetoteu.ui.theme.EmeraldGreen
 import com.example.trajetoteu.ui.theme.OffWhite
 import com.example.trajetoteu.ui.theme.SurfaceNavy
 
@@ -55,7 +53,6 @@ object Rotas {
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    // Estado Global Mínimo Compartilhado (Memória Emulada)
     val trilhasState = remember {
         mutableStateListOf(
             TrilhaConhecimento("t1", "Algoritmos e Agendamento", "Aprenda a otimizar slots e priorizar tarefas.", "Otimização de tarefas operacionais.", 45, MascotItem.CALENDAR),
@@ -86,7 +83,7 @@ fun AppNavigation() {
                     title = { Text("Trajeto Teu", fontWeight = FontWeight.Bold, color = OffWhite) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = OffWhite)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = OffWhite)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepNavy)
@@ -105,7 +102,7 @@ fun AppNavigation() {
                     NavigationBarItem(
                         selected = currentRoute == Rotas.TRILHAS_LISTA,
                         onClick = { navController.navigate(Rotas.TRILHAS_LISTA) },
-                        icon = { Icon(Icons.Default.List, contentDescription = "Trilhas") },
+                        icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Trilhas") },
                         label = { Text("Trilhas") }
                     )
                     NavigationBarItem(
