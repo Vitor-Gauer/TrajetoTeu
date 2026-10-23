@@ -556,7 +556,7 @@ fun Screen08Auth(onAuthSuccess: () -> Unit = {}) {
 
 @Composable
 fun Screen09Dashboard(
-    onNavigateToTrail: (String) -> Unit = {},
+    onNavigateToTrail: (Int) -> Unit = {},
     onNavigateDiscovery: () -> Unit = {}
 ) {
     Column(
@@ -597,9 +597,9 @@ fun Screen09Dashboard(
         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             items(
                 listOf(
-                    Triple("t1", "Algoritmos e Agendamento", "Otimize slots de tempo e execute tarefas."),
-                    Triple("t2", "Análise de Dados com Python", "Crie gráficos e interprete métricas."),
-                    Triple("t3", "Lógica de Busca", "Aprenda árvores de busca e ordenação.")
+                    Triple(1, "Algoritmos e Agendamento", "Otimize slots de tempo e execute tarefas."),
+                    Triple(2, "Análise de Dados com Python", "Crie gráficos e interprete métricas."),
+                    Triple(3, "Lógica de Busca", "Aprenda árvores de busca e ordenação.")
                 )
             ) { (id, titulo, desc) ->
                 Card(

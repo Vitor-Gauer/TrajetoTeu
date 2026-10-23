@@ -14,8 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
-import com.example.trajetoteu.model.TopicoEstudo
-import com.example.trajetoteu.model.TrilhaConhecimento
 import com.example.trajetoteu.ui.screens.*
 import com.example.trajetoteu.ui.theme.DeepNavy
 import com.example.trajetoteu.ui.theme.OffWhite
@@ -43,31 +41,15 @@ object Rotas {
 
     const val LESSON_EXPERIENCE = "lesson_experience/{topicoId}"
 
-    fun trilhaDetalhe(trilhaId: String) = "trilha_detalhe/$trilhaId"
-    fun topicoDetalhe(topicoId: String) = "topico_detalhe/$topicoId"
-    fun lessonExperience(topicoId: String) = "lesson_experience/$topicoId"
+    fun trilhaDetalhe(trilhaId: Int) = "trilha_detalhe/$trilhaId"
+    fun topicoDetalhe(topicoId: Int) = "topico_detalhe/$topicoId"
+    fun lessonExperience(topicoId: Int) = "lesson_experience/$topicoId"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
-    val trilhasState = remember {
-        mutableStateListOf(
-            TrilhaConhecimento("t1", "Algoritmos e Agendamento", "Aprenda a otimizar slots e priorizar tarefas.", "Otimização de tarefas operacionais.", 45, MascotItem.CALENDAR),
-            TrilhaConhecimento("t2", "Análise de Dados com Python", "Entenda gráficos, médias e distribuições.", "Tomada de decisão orientada a dados.", 60, MascotItem.PIE),
-            TrilhaConhecimento("t3", "Lógica de Busca", "Técnicas eficientes de busca e indexação.", "Aceleramento de consultas em banco.", 30, MascotItem.MAGNIFIER)
-        )
-    }
-
-    val topicosState = remember {
-        mutableStateListOf(
-            TopicoEstudo("top1", "t1", "Problema do Agendamento", "Qual a melhor abordagem para tarefas com prazos simultâneos?", "Priorizar a tarefa mais curta", "Executar em ordem aleatória", "Ordene pela menor duração primeiro."),
-            TopicoEstudo("top2", "t1", "Prioridade Dinâmica", "Como evitar inanição (starvation) em filas?", "Aumentar prioridade com o tempo", "Ignorar tarefas antigas", "Aumentar gradualmente a prioridade dos processos parados."),
-            TopicoEstudo("top3", "t2", "Gráficos de Setores", "Quando utilizar um gráfico de pizza?", "Para comparar partes de um todo de 100%", "Para séries temporais longas", "Ideal para porcentagens relativas.")
-        )
-    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -171,43 +153,36 @@ fun AppNavigation() {
                 Screen11Profile()
             }
 
-            // --- REQUISITOS MAF: LISTA 1 & DETALHE 1 (TRILHAS) ---
+            // --- REQUISITOS MAF: LISTA 1 & DETALHE 1 (TRILHAS COM ROOM) ---
             composable(Rotas.TRILHAS_LISTA) {
                 ScreenTrilhasLista(
-                    trilhas = trilhasState,
                     onTrilhaClick = { id -> navController.navigate(Rotas.trilhaDetalhe(id)) }
                 )
             }
             composable(
                 route = Rotas.TRILHA_DETALHE,
-                arguments = listOf(navArgument("trilhaId") { type = NavType.StringType })
+                arguments = listOf(navArgument("trilhaId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val trilhaId = backStackEntry.arguments?.getString("trilhaId")
+                val trilhaId = backStackEntry.arguments?.getInt("trilhaId") ?: 1
                 ScreenTrilhaDetalhe(
                     trilhaId = trilhaId,
-                    trilhas = trilhasState,
-                    topicos = topicosState,
                     onStartLesson = { topicoId -> navController.navigate(Rotas.lessonExperience(topicoId)) }
                 )
             }
 
-            // --- REQUISITOS MAF: LISTA 2 & DETALHE 2 (TÓPICOS) ---
+            // --- REQUISITOS MAF: LISTA 2 & DETALHE 2 (TÓPICOS COM ROOM) ---
             composable(Rotas.TOPICOS_LISTA) {
                 ScreenTopicosLista(
-                    topicos = topicosState,
-                    trilhas = trilhasState,
                     onTopicoClick = { id -> navController.navigate(Rotas.topicoDetalhe(id)) }
                 )
             }
             composable(
                 route = Rotas.TOPICO_DETALHE,
-                arguments = listOf(navArgument("topicoId") { type = NavType.StringType })
+                arguments = listOf(navArgument("topicoId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val topicoId = backStackEntry.arguments?.getString("topicoId")
+                val topicoId = backStackEntry.arguments?.getInt("topicoId") ?: 1
                 ScreenTopicoDetalhe(
                     topicoId = topicoId,
-                    topicos = topicosState,
-                    trilhas = trilhasState,
                     onOpenLesson = { id -> navController.navigate(Rotas.lessonExperience(id)) }
                 )
             }
@@ -215,12 +190,11 @@ fun AppNavigation() {
             // --- TELA 12: LESSON & TRAIL EXPERIENCE ---
             composable(
                 route = Rotas.LESSON_EXPERIENCE,
-                arguments = listOf(navArgument("topicoId") { type = NavType.StringType })
+                arguments = listOf(navArgument("topicoId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val topicoId = backStackEntry.arguments?.getString("topicoId") ?: "top1"
+                val topicoId = backStackEntry.arguments?.getInt("topicoId") ?: 1
                 Screen12LessonAndTrail(
                     topicoId = topicoId,
-                    topicos = topicosState,
                     onExitClick = { navController.popBackStack() }
                 )
             }

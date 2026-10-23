@@ -1,53 +1,37 @@
-# Trajeto Teu - Mínimo Aplicativo Funcional (MAF)
+# Trajeto Teu — Trabalho 3: Persistência de Dados com Room
 
-O **Trajeto Teu** é um aplicativo educacional para Android construído em Kotlin com Jetpack Compose, inspirado na plataforma Brilliant.org. Possui uma jornada gamificada de aprendizado, mascote adaptativo e navegação por rotas dinâmicas.
-
----
-
-## Como Executar o Projeto
-
-1. **Pré-requisitos**:
-    * Android Studio Ladybug (ou versão recente).
-    * JDK 17+.
-    * Emulador Android ou dispositivo físico (API 26+ / Android 8.0+).
-2. **Passos para rodar**:
-    * Clone o repositório em sua máquina:
-      ```bash
-      git clone [https://github.com/vitor-gauer/trajeto-teu.git](https://github.com/vitor-gauer/trajeto-teu.git)
-      ```
-    * Abra o Android Studio e selecione `Open...` apontando para a pasta raiz do repositório.
-    * Aguarde a sincronização do Gradle.
-    * Selecione o dispositivo (emulador/físico) e clique em **Run (Shift + F10)**.
+Evolução do projeto **Trajeto Teu** (Trabalho 3 da A2), implementando a camada de persistência local com **Room (SQLite)**.
 
 ---
 
-## Estrutura e Navegação do App (MNavHost)
-
-A navegação é centralizada no `AppNavigation.kt` através do Jetpack Compose Navigation (`NavHost` / `NavController`), contemplando mais de 12 telas interligadas:
-
-1. **Onboarding (Telas 1 a 8)**:
-    * **Tela 1**: Seleção de Objetivo (*Aprender* ou *Ensinar*).
-    * **Tela 2**: Escolha de Motivações.
-    * **Tela 3**: Ajuste de Acessibilidade & Narração por Voz.
-    * **Tela 4**: Perfil Demográfico e Interesses em Chips.
-    * **Tela 5**: Autoavaliação de Nível Técnico.
-    * **Tela 6**: Teste Diagnóstico Interativo.
-    * **Tela 7**: Definição de Meta Diária de Estudo.
-    * **Tela 8**: Autenticação / Cadastro.
-2. **Navegação Principal & BottomBar**:
-    * **Tela 9 (Dashboard)**: Busca e Carrossel de Trilhas Recomendadas.
-    * **Tela 10 (Discovery)**: Áreas Inscritas e Cursos Recomendados.
-    * **Tela 11 (Profile)**: Métricas com alternadores de tempo (7, 30, 365 dias).
-3. **Requisitos de Negócio MAF (Listas, CRUD e Detalhes)**:
-    * **Lista 1 - Trilhas (`ScreenTrilhasLista`)**: Lista reativa (`TrilhaConhecimento`) com suporte a **Adicionar** e **Remover**.
-    * **Detalhe 1 - Trilha (`ScreenTrilhaDetalhe`)**: Exibe as informações da Trilha e executa um **cálculo em tempo real de porcentagem de progresso e tempo estimado de conclusão** com base nos Tópicos vinculados.
-    * **Lista 2 - Tópicos (`ScreenTopicosLista`)**: Lista reativa (`TopicoEstudo`) com suporte a **Adicionar**, **Remover** e marcar estado via **Checkbox**.
-    * **Detalhe 2 - Tópico (`ScreenTopicoDetalhe`)**: Permite alterar o estado de conclusão do tópico e navegar para o exercício interativo.
-4. **Experiência de Aprendizado**:
-    * **Tela 12 (Lesson & Trail)**: Mapa diagonal com nó interativo e mascote dinâmico trocando de emoção e itens de acordo com o feedback.
+## 🚀 Como Rodar o Projeto
+1. Clone o repositório ou abra o projeto no **Android Studio**.
+2. Certifique-se de estar usando o **Gradle Wrapper** e sincronize o projeto.
+3. Execute o app em um emulador ou dispositivo físico Android (API 24+).
 
 ---
 
-## Decisões de Design
-* **Cores**: Deep Navy (`#0F172A`), Emerald Green (`#10B981`), Warm Yellow (`#F59E0B`).
-* **Mascote**: *Explorer Mascot* em gráficos 2D em Compose.
+## 🏗️ Decisões de Arquitetura e Implementação (Trabalho 3)
+
+### 1. Migração de Memória para Room
+* **Trabalho 2:** Os dados de trilhas e tópicos eram armazenados em memória volátil (`mutableStateListOf`), o que causava a perda de todos os dados cadastrados ou alterados sempre que o aplicativo era fechado.
+* **Trabalho 3:** Implementação completa da camada de banco de dados com **Room**. As data classes `TrilhaConhecimento` e `TopicoEstudo` foram transformadas em `@Entity` (com `id: Int = 0` e `@PrimaryKey(autoGenerate = true)`).
+
+### 2. Estrutura do Room
+* **@Entity:** `TrilhaConhecimento` (tabela `trilhas`) e `TopicoEstudo` (tabela `topicos`).
+* **@Dao:** `TrilhaDao` e `TopicoDao` contendo os métodos CRUD básicos (`@Insert`, `@Query`, `@Update`, `@Delete`) implementados como funções `suspend`, além de consultas filtradas por ID (`buscarPorId(id: Int)`) e por relacionamento (`buscarPorTrilha(trilhaId: Int)`).
+* **AppDatabase:** Classe abstrata Singleton (`@Volatile` + `synchronized` + `Room.databaseBuilder`) com pre-população automática de dados iniciais na primeira criação (`onCreate`).
+
+### 3. Boas Práticas de Concorrência e UI
+* Todas as operações de banco de dados são executadas assincronamente dentro de escopos de corrotinas em `Dispatchers.IO`, garantindo que a thread principal nunca seja travada.
+* As telas de listagem (`ScreenTrilhasLista`, `ScreenTopicosLista`) carregam os dados do banco ao abrir utilizando `LaunchedEffect(Unit)`.
+* As telas de detalhes (`ScreenTrilhaDetalhe`, `ScreenTopicoDetalhe`) buscam os itens diretamente do banco a partir do `id` recebido via navegação, utilizando a consulta filtrada do DAO (`buscarPorId`).
+
+---
+
+## 🧪 Teste de Aceitação e Persistência
+Para comprovar o funcionamento da persistência:
+1. Abra a tela de **Trilhas** ou **Tópicos** e adicione um novo item.
+2. Feche o aplicativo completamente (remova dos recém-abertos/recentes).
+3. Abra o aplicativo novamente.
+4. O item recém-adicionado continuará lá, persistido no banco SQLite local via Room.

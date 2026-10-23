@@ -25,6 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.trajetoteu.model.TopicoEstudo
 import com.example.trajetoteu.ui.theme.WarmYellow
+import com.example.trajetoteu.data.local.AppDatabase
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private val DeepNavy = Color(0xFF0F172A)
 private val SurfaceNavy = Color(0xFF1E293B)
@@ -40,19 +44,33 @@ enum class FeedbackState {
 
 @Composable
 fun Screen12LessonAndTrail(
-    topicoId: String = "top1",
-    topicos: List<TopicoEstudo> = emptyList(),
+    topicoId: Int = 1,
     onExitClick: () -> Unit = {}
 ) {
-    val topicoAtual = topicos.find { it.id == topicoId } ?: topicos.firstOrNull() ?: TopicoEstudo(
-        id = "top1",
-        trilhaId = "t1",
-        titulo = "Problema do Agendamento",
-        perguntaDesafio = "Qual a melhor abordagem para agendar tarefas com prazos simultâneos?",
-        opcaoCorreta = "Priorizar a tarefa mais curta",
-        opcaoIncorreta = "Executar em ordem aleatória",
-        dica = "Dica: Tente analisar a duração de cada evento antes de ordenar."
-    )
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getDatabase(context) }
+    var topicoAtual by remember {
+        mutableStateOf(
+            TopicoEstudo(
+                id = 1,
+                trilhaId = 1,
+                titulo = "Problema do Agendamento",
+                perguntaDesafio = "Qual a melhor abordagem para agendar tarefas com prazos simultâneos?",
+                opcaoCorreta = "Priorizar a tarefa mais curta",
+                opcaoIncorreta = "Executar em ordem aleatória",
+                dica = "Dica: Tente analisar a duração de cada evento antes de ordenar."
+            )
+        )
+    }
+
+    LaunchedEffect(topicoId) {
+        withContext(Dispatchers.IO) {
+            val fetched = db.topicoDao().buscarPorId(topicoId)
+            if (fetched != null) {
+                topicoAtual = fetched
+            }
+        }
+    }
 
     var feedbackState by remember { mutableStateOf(FeedbackState.NEUTRAL) }
     var isMuted by remember { mutableStateOf(false) }
