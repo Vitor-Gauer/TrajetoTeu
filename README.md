@@ -35,3 +35,6 @@ Para comprovar o funcionamento da persistência:
 2. Feche o aplicativo completamente (remova dos recém-abertos/recentes).
 3. Abra o aplicativo novamente.
 4. O item recém-adicionado continuará lá, persistido no banco SQLite local via Room.
+
+## 📊 Apresentação & Documentação (Seção 4)
+* **Link para os Slides da Apresentação:** [Apresentação do Trabalho 3 - Google Slides](https://docs.google.com/presentation/d/1E0_bnxdOMFq3yF3yayZcQaP9HKzefT8PdOvjwr9XgV8/edit?usp=sharing)
