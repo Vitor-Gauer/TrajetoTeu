@@ -4,14 +4,14 @@ Evolução do projeto **Trajeto Teu** (Trabalho 3 da A2), implementando a camada
 
 ---
 
-## 🚀 Como Rodar o Projeto
+## Como Rodar o Projeto
 1. Clone o repositório ou abra o projeto no **Android Studio**.
 2. Certifique-se de estar usando o **Gradle Wrapper** e sincronize o projeto.
 3. Execute o app em um emulador ou dispositivo físico Android (API 24+).
 
 ---
 
-## 🏗️ Decisões de Arquitetura e Implementação (Trabalho 3)
+## Decisões de Arquitetura e Implementação (Trabalho 3)
 
 ### 1. Migração de Memória para Room
 * **Trabalho 2:** Os dados de trilhas e tópicos eram armazenados em memória volátil (`mutableStateListOf`), o que causava a perda de todos os dados cadastrados ou alterados sempre que o aplicativo era fechado.
@@ -29,12 +29,12 @@ Evolução do projeto **Trajeto Teu** (Trabalho 3 da A2), implementando a camada
 
 ---
 
-## 🧪 Teste de Aceitação e Persistência
+## Teste de Aceitação e Persistência
 Para comprovar o funcionamento da persistência:
 1. Abra a tela de **Trilhas** ou **Tópicos** e adicione um novo item.
 2. Feche o aplicativo completamente (remova dos recém-abertos/recentes).
 3. Abra o aplicativo novamente.
 4. O item recém-adicionado continuará lá, persistido no banco SQLite local via Room.
 
-## 📊 Apresentação & Documentação (Seção 4)
+## Apresentação & Documentação (Seção 4)
 * **Link para os Slides da Apresentação:** [Apresentação do Trabalho 3 - Google Slides](https://docs.google.com/presentation/d/1E0_bnxdOMFq3yF3yayZcQaP9HKzefT8PdOvjwr9XgV8/edit?usp=sharing)
