@@ -72,4 +72,4 @@ A maior dificuldade foi entender a injeção do Repository no ViewModel via `Vie
 4. Abra o app novamente: todos os dados criados permanecem persistidos no SQLite via Room com arquitetura MVVM.
 
 ## Apresentação & Documentação
-* **Link para os Slides da Apresentação:** [Apresentação do Trabalho 4 - Google Slides](https://docs.google.com/presentation/d/1E0_bnxdOMFq3yF3yayZcQaP9HKzefT8PdOvjwr9XgV8/edit?usp=sharing)
+* **Link para os Slides da Apresentação:** [Apresentação do Trabalho 4 - Google Slides](https://docs.google.com/presentation/d/1dIaA-zmINDR4Ga1XG1Lt9wp9vnkxKNIC8XIqT1Vl6iA/edit?usp=sharing)
