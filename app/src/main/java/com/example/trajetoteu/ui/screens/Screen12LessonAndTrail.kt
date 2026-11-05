@@ -12,7 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,19 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.trajetoteu.model.TopicoEstudo
-import com.example.trajetoteu.ui.theme.WarmYellow
-import com.example.trajetoteu.data.local.AppDatabase
-import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
-private val DeepNavy = Color(0xFF0F172A)
-private val SurfaceNavy = Color(0xFF1E293B)
-private val OffWhite = Color(0xFFF8FAFC)
-private val SoftGray = Color(0xFF94A3B8)
-private val EmeraldGreen = Color(0xFF10B981)
-private val SoftYellow = Color(0xFFFEF08A)
-private val WarningText = Color(0xFF854D0E)
+import com.example.trajetoteu.ui.theme.*
+import com.example.trajetoteu.viewmodel.LessonViewModel
 
 enum class FeedbackState {
     NEUTRAL, MISTAKE, SUCCESS
@@ -45,35 +35,18 @@ enum class FeedbackState {
 @Composable
 fun Screen12LessonAndTrail(
     topicoId: Int = 1,
+    viewModel: LessonViewModel,
     onExitClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-    val db = remember { AppDatabase.getDatabase(context) }
-    var topicoAtual by remember {
-        mutableStateOf(
-            TopicoEstudo(
-                id = 1,
-                trilhaId = 1,
-                titulo = "Problema do Agendamento",
-                perguntaDesafio = "Qual a melhor abordagem para agendar tarefas com prazos simultâneos?",
-                opcaoCorreta = "Priorizar a tarefa mais curta",
-                opcaoIncorreta = "Executar em ordem aleatória",
-                dica = "Dica: Tente analisar a duração de cada evento antes de ordenar."
-            )
-        )
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(topicoId) {
-        withContext(Dispatchers.IO) {
-            val fetched = db.topicoDao().buscarPorId(topicoId)
-            if (fetched != null) {
-                topicoAtual = fetched
-            }
-        }
+        viewModel.carregarTopico(topicoId)
     }
 
-    var feedbackState by remember { mutableStateOf(FeedbackState.NEUTRAL) }
-    var isMuted by remember { mutableStateOf(false) }
+    val topicoAtual = uiState.topico
+    val feedbackState = uiState.feedbackState
+    val isMuted = uiState.isMuted
 
     val backgroundColor by animateColorAsState(
         targetValue = getBackgroundColor(feedbackState),
@@ -93,7 +66,7 @@ fun Screen12LessonAndTrail(
             onExitClick = onExitClick,
             textColor = textColor,
             isMuted = isMuted,
-            onToggleMute = { isMuted = !isMuted }
+            onToggleMute = { viewModel.toggleMute() }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -102,13 +75,13 @@ fun Screen12LessonAndTrail(
             modifier = Modifier.weight(1f),
             topico = topicoAtual,
             feedbackState = feedbackState,
-            onOptionSelected = { newState -> feedbackState = newState }
+            onOptionSelected = { newState -> viewModel.selecionarOpcao(newState) }
         )
 
         FeedbackBottomBar(
             feedbackState = feedbackState,
             dica = topicoAtual.dica,
-            onContinueClick = { feedbackState = FeedbackState.NEUTRAL }
+            onContinueClick = { viewModel.continuar() }
         )
     }
 }

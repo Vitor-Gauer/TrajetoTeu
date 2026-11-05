@@ -10,14 +10,20 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import com.example.trajetoteu.data.local.AppDatabase
+import com.example.trajetoteu.data.repository.TopicoRepository
+import com.example.trajetoteu.data.repository.TrilhaRepository
 import com.example.trajetoteu.ui.screens.*
 import com.example.trajetoteu.ui.theme.DeepNavy
 import com.example.trajetoteu.ui.theme.OffWhite
 import com.example.trajetoteu.ui.theme.SurfaceNavy
+import com.example.trajetoteu.viewmodel.*
 
 object Rotas {
     const val ONBOARDING_1_ROLE = "onboarding_role"
@@ -50,6 +56,17 @@ object Rotas {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    // Instanciação das dependências Room e Repositórios
+    val db = remember { AppDatabase.getDatabase(context) }
+    val trilhaRepository = remember { TrilhaRepository(db.trilhaDao()) }
+    val topicoRepository = remember { TopicoRepository(db.topicoDao()) }
+
+    // Factories dos ViewModels
+    val trilhasViewModelFactory = remember { TrilhasViewModelFactory(trilhaRepository, topicoRepository) }
+    val topicosViewModelFactory = remember { TopicosViewModelFactory(topicoRepository, trilhaRepository) }
+    val lessonViewModelFactory = remember { LessonViewModelFactory(topicoRepository) }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -109,7 +126,6 @@ fun AppNavigation() {
             startDestination = Rotas.ONBOARDING_1_ROLE,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // --- FLUXO DE ONBOARDING ---
             composable(Rotas.ONBOARDING_1_ROLE) {
                 Screen01UserRole(onNext = { navController.navigate(Rotas.ONBOARDING_2_MOTIVATION) })
             }
@@ -139,7 +155,6 @@ fun AppNavigation() {
                 })
             }
 
-            // --- NAVEGAÇÃO PRINCIPAL ---
             composable(Rotas.DASHBOARD) {
                 Screen09Dashboard(
                     onNavigateToTrail = { trilhaId -> navController.navigate(Rotas.trilhaDetalhe(trilhaId)) },
@@ -153,9 +168,11 @@ fun AppNavigation() {
                 Screen11Profile()
             }
 
-            // --- REQUISITOS MAF: LISTA 1 & DETALHE 1 (TRILHAS COM ROOM) ---
+            // --- REQUISITOS MAF: LISTA 1 & DETALHE 1 (TRILHAS COM ROOM + MVVM) ---
             composable(Rotas.TRILHAS_LISTA) {
+                val trilhasViewModel: TrilhasViewModel = viewModel(factory = trilhasViewModelFactory)
                 ScreenTrilhasLista(
+                    viewModel = trilhasViewModel,
                     onTrilhaClick = { id -> navController.navigate(Rotas.trilhaDetalhe(id)) }
                 )
             }
@@ -164,15 +181,19 @@ fun AppNavigation() {
                 arguments = listOf(navArgument("trilhaId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val trilhaId = backStackEntry.arguments?.getInt("trilhaId") ?: 1
+                val trilhasViewModel: TrilhasViewModel = viewModel(factory = trilhasViewModelFactory)
                 ScreenTrilhaDetalhe(
                     trilhaId = trilhaId,
+                    viewModel = trilhasViewModel,
                     onStartLesson = { topicoId -> navController.navigate(Rotas.lessonExperience(topicoId)) }
                 )
             }
 
-            // --- REQUISITOS MAF: LISTA 2 & DETALHE 2 (TÓPICOS COM ROOM) ---
+            // --- REQUISITOS MAF: LISTA 2 & DETALHE 2 (TÓPICOS COM ROOM + MVVM) ---
             composable(Rotas.TOPICOS_LISTA) {
+                val topicosViewModel: TopicosViewModel = viewModel(factory = topicosViewModelFactory)
                 ScreenTopicosLista(
+                    viewModel = topicosViewModel,
                     onTopicoClick = { id -> navController.navigate(Rotas.topicoDetalhe(id)) }
                 )
             }
@@ -181,20 +202,24 @@ fun AppNavigation() {
                 arguments = listOf(navArgument("topicoId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val topicoId = backStackEntry.arguments?.getInt("topicoId") ?: 1
+                val topicosViewModel: TopicosViewModel = viewModel(factory = topicosViewModelFactory)
                 ScreenTopicoDetalhe(
                     topicoId = topicoId,
+                    viewModel = topicosViewModel,
                     onOpenLesson = { id -> navController.navigate(Rotas.lessonExperience(id)) }
                 )
             }
 
-            // --- TELA 12: LESSON & TRAIL EXPERIENCE ---
+            // --- TELA 12: LESSON & TRAIL EXPERIENCE (MVVM) ---
             composable(
                 route = Rotas.LESSON_EXPERIENCE,
                 arguments = listOf(navArgument("topicoId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val topicoId = backStackEntry.arguments?.getInt("topicoId") ?: 1
+                val lessonViewModel: LessonViewModel = viewModel(factory = lessonViewModelFactory)
                 Screen12LessonAndTrail(
                     topicoId = topicoId,
+                    viewModel = lessonViewModel,
                     onExitClick = { navController.popBackStack() }
                 )
             }
